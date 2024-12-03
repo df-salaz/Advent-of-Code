@@ -14,18 +14,48 @@ fn main() {
 
     for report in reports.iter() {
         let str_levels: Vec<&str> = report.trim().split_whitespace().collect();
-        let mut levels: Vec<i32> = vec![];
+        let mut report: Vec<i32> = vec![];
         for level in str_levels.iter() {
-            levels.push(level.parse().expect("Failed to parse to int"))
+            report.push(level.parse().expect("Failed to parse to int"))
         }
-        if check_inc(&levels) && check_dist(&levels) { safe_reports += 1; };
+        if check_inc_dec(&report) && check_dist(&report) { safe_reports += 1; };
+    };
+
+    println!("Safe Reports: {safe_reports}");
+}
+
+fn check_inc_dec(report: &Vec<i32>) -> bool {
+    let increasing: bool;
+
+    if report.len() > 1 {
+        if report[0] < report[1] { increasing = true }
+        else if report[0] > report[1] { increasing = false }
+        else { return false };
+    } else {
+        return false;
     }
+
+    for (i, level) in report.iter().enumerate() {
+        if i == 0 { continue; };
+        if increasing {
+            if *level <= report[i-1] {
+                return false;
+            };
+        } else {
+            if *level >= report[i-1] {
+                return false;
+            }
+        };
+    };
+    true
 }
 
-fn check_inc(levels: &Vec<i32>) -> bool {
-
-}
-
-fn check_dist(levels: &Vec<i32>) -> bool {
-
+fn check_dist(report: &Vec<i32>) -> bool {
+    for (i, level) in report.iter().enumerate() {
+        if i == 0 { continue; };
+        if (*level - report[i-1]).abs() > 3 {
+            return false
+        };
+    };
+    true
 }
