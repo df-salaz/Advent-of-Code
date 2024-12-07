@@ -1,5 +1,7 @@
 use std::env;
 use std::fs;
+use std::io;
+use std::io::Write;
 use std::usize;
 
 fn main() {
@@ -11,7 +13,7 @@ fn main() {
     let field = get_2d_char_arry(input);
 
     let mut agent =
-        match find_agent(field) {
+        match find_agent(field.clone()) {
             Some(value) => value,
             None => {
                 println!("Could not find agent.");
@@ -20,10 +22,10 @@ fn main() {
         };
 
     while agent.move_agent() && !agent.in_loop {}
-    let field = agent.field;
+    let first_pass = agent.field;
 
     let mut count = 0;
-    for line in field.iter() {
+    for line in first_pass.iter() {
         for c in line.iter() {
             if *c == 'X' {
                 count += 1;
@@ -32,6 +34,34 @@ fn main() {
     };
 
     println!("Part 1:");
+    println!("{count}");
+
+    let mut count = 0;
+    let mut field_2 = field;
+
+    for i in 0..field_2.len() {
+        for j in 0..field_2[i].len() {
+            let _ = io::stdout().flush();
+            if first_pass[i][j] != 'X' { continue; };
+            if field_2[i][j] != '.' { continue; };
+
+            field_2[i][j] = '#';
+
+            let mut agent =
+                match find_agent(field_2.clone()) {
+                    Some(value) => value,
+                    None => { return },
+                };
+
+            while agent.move_agent() && !agent.in_loop {}
+            if agent.in_loop {
+                count += 1;
+            }
+            field_2[i][j] = '.';
+        }
+    }
+
+    println!("Part 2:");
     println!("{count}");
 }
 
@@ -108,6 +138,7 @@ struct Agent {
     facing: Facing,
     field: Vec<Vec<char>>,
     memory: Vec<Vec<Option<((i32, i32), Facing)>>>,
+    iterations: i32,
     in_loop: bool,
 }
 
@@ -128,12 +159,18 @@ impl Agent {
             facing,
             field,
             memory,
+            iterations: 0,
             in_loop: false,
         };
         new_agent
     }
 
     fn move_agent(&mut self) -> bool {
+        self.iterations += 1;
+        if self.iterations as usize > self.field.len() * self.field[0].len() {
+            self.in_loop = true;
+        }
+
         let direction;
 
         match &self.facing {
