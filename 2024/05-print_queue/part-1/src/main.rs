@@ -1,6 +1,5 @@
 use std::env;
 use std::fs;
-use std::ops::ControlFlow;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -43,21 +42,31 @@ fn main() {
     println!("{total}");
 }
 
-fn fix_update(printing_update: &Vec<usize>, ordering_rules: &Vec<Vec<usize>>) -> Vec<usize> {
+fn fix_update(printing_update: &Vec<i32>, ordering_rules: &Vec<Vec<i32>>) -> Vec<i32> {
     let mut new_update = printing_update.clone();
-    let mut i = 0;
-    while i < printing_update.len() {
-        for rule in ordering_rules.iter() {
-            if rule[0] == printing_update[i] {
-
-            }
-        }
-        i += 1;
-    };
+    while !check_update(&new_update, ordering_rules) {
+        let mut i = 0;
+        while i < new_update.len() {
+            for rule in ordering_rules.iter() {
+                if rule[0] != new_update[i] { continue };
+                if check_rule(&new_update, rule) { continue };
+                let after;
+                match new_update.iter().position(|&page| page == rule[1]) {
+                    None => { continue; },
+                    Some(position) => { after = position; }
+                }
+                new_update.swap(
+                    i,
+                    after
+                );
+            };
+            i += 1;
+        };
+    }
     new_update
 }
 
-fn check_update(printing_update: &Vec<usize>, ordering_rules: &Vec<Vec<usize>>) -> bool {
+fn check_update(printing_update: &Vec<i32>, ordering_rules: &Vec<Vec<i32>>) -> bool {
     let mut failed = false;
     for rule in ordering_rules.iter() {
         let good = check_rule(printing_update, &rule);
@@ -69,29 +78,25 @@ fn check_update(printing_update: &Vec<usize>, ordering_rules: &Vec<Vec<usize>>) 
     !failed
 }
 
-fn check_rule(printing_update: &Vec<usize>, rule: &Vec<usize>) -> bool {
+fn check_rule(printing_update: &Vec<i32>, rule: &Vec<i32>) -> bool {
     let before = rule[0];
     let after = rule[1];
 
     let before_index = printing_update.iter().position(|&page| page == before);
     match before_index {
-        None => {
-            return true;
-        },
+        None => { return true; },
         Some(..) => {}
     };
     let after_index = printing_update.iter().position(|&page| page == after);
     match after_index {
-        None => {
-            return true;
-        },
+        None => { return true; },
         Some(..) => {}
     };
     before_index <= after_index
 }
 
-fn get_vec_vec(section: &str, pattern: char) -> Vec<Vec<usize>> {
-    let vec: Vec<Vec<usize>> = section.split('\n')
+fn get_vec_vec(section: &str, pattern: char) -> Vec<Vec<i32>> {
+    let vec: Vec<Vec<i32>> = section.split('\n')
         .map(|string| string.trim())
         .map(|string: &str| {
             string.split(pattern)
