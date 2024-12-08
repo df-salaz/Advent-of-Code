@@ -188,13 +188,9 @@ impl Agent {
             self.location.1 + direction.1,
         );
 
-        self.memory[loc.0 as usize][loc.1 as usize] = Some((loc, self.facing));
-
-
-        let loc = &new_loc;
         let bounds_y = self.field.len() as i32;
         let bounds_x = self.field[0].len() as i32;
-        if loc.0 >= bounds_y || loc.0 < 0 || loc.1 >= bounds_x || loc.1 < 0
+        if new_loc.0 >= bounds_y || new_loc.0 < 0 || new_loc.1 >= bounds_x || new_loc.1 < 0
         { return false };
 
         if self.field[new_loc.0 as usize][new_loc.1 as usize] == '#' {
@@ -214,7 +210,9 @@ impl Agent {
                     self.in_loop = true;
                 }
             },
-            None => {},
+            None => {
+                self.memory[loc.0 as usize][loc.1 as usize] = Some((loc, self.facing));
+            },
         }
 
         self.location = new_loc;
