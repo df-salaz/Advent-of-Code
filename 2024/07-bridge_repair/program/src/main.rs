@@ -1,9 +1,10 @@
 use std::env;
 use std::fs;
+use std::sync::Arc;
+use std::sync::Mutex;
+use std::thread;
 
-use strum::EnumCount;
 use strum::IntoEnumIterator;
-use strum_macros::EnumCount;
 use strum_macros::EnumIter;
 
 fn main() {
@@ -12,40 +13,62 @@ fn main() {
         None => return,
     };
 
-    let mut total: i64 = 0;
-    for line in matrix.iter() {
-        if check_possible(&line) {
-            total += line[0];
-        };
+    let mut handles = Vec::with_capacity(matrix.len());
+    let counter: Arc<Mutex<i64>> = Arc::new(Mutex::new(0));
+
+    for i in 0..matrix.len() {
+        let line = matrix[i].clone();
+        let counter = Arc::clone(&counter);
+        let handle = thread::spawn(move || {
+            if check_possible(&line) {
+                let mut total = counter.lock().unwrap();
+                *total += line[0];
+            };
+        });
+        handles.push(handle);
     }
 
-    println!("{total}");
+    for handle in handles {
+        handle.join().unwrap();
+    }
+    println!("{}", *counter.lock().unwrap());
 }
 
 fn check_possible(line: &[i64]) -> bool {
-    let mut results: Vec<i64> = Vec::with_capacity(((line.len() - 1) - 1) ^ Operator::COUNT);
-
-    populate_results(&mut results, &line[1..line.len()]);
-
-    results.contains(&line[0])
+    let values = &line[1..line.len()];
+    let mut sequence: Vec<Operator> = Vec::new();
+    return check_helper(
+        values,
+        &mut sequence,
+        values.len(),
+        line[0],
+    );
 }
 
-fn populate_results(results: &mut Vec<i64>, values: &[i64]) {
-    let mut sequence: Vec<Operator> = Vec::with_capacity(values.len() - 1);
-    populate_helper(results, values, &mut sequence, values.len());
-}
-
-fn populate_helper(results: &mut Vec<i64>, values: &[i64], sequence: &mut Vec<Operator>, count: usize) {
+fn check_helper(
+    values: &[i64],
+    sequence: &mut Vec<Operator>,
+    count: usize,
+    goal: i64,
+) -> bool {
     if count == 1 {
-        results.push(apply_operators(sequence, values));
-        return;
+        return apply_operators(sequence, values) == goal;
     }
 
     for operator in Operator::iter() {
         let mut new_sequence = sequence.clone();
         new_sequence.push(operator);
-        populate_helper(results, values, &mut new_sequence, count - 1);
+        let solution_found = check_helper(
+            values,
+            &mut new_sequence,
+            count - 1,
+            goal,
+        );
+
+        if solution_found { return true };
     };
+
+    false
 }
 
 fn apply_operators(sequence: &mut Vec<Operator>, values: &[i64]) -> i64 {
@@ -88,7 +111,7 @@ fn process_input() -> Option<Vec<Vec<i64>>> {
     Some(input)
 }
 
-#[derive(Copy, Clone, Ord, PartialOrd, Eq, PartialEq, EnumIter, EnumCount)]
+#[derive(Copy, Clone, Ord, PartialOrd, Eq, PartialEq, EnumIter)]
 pub enum Operator {
     Add,
     Multiply,
@@ -101,7 +124,7 @@ impl Operator {
             Operator::Add => lh + rh,
             Operator::Multiply => lh * rh,
             Operator::Concatinate => {
-                (lh.to_string() + rh.to_string().as_str()).parse().unwrap()
+                format!("{lh}{rh}").parse().unwrap()
             },
         }
     }
