@@ -17,13 +17,13 @@ fn part_2(fs_map: &Vec<Option<i64>>, largest_id: i64) -> Vec<Option<i64>> {
     for id in (0..=largest_id).rev() {
         let size = filesystem
             .iter()
-            .rev()
             .filter(|block| **block == Some(id))
             .count();
         match filesystem
             .iter()
             .enumerate()
-            // find the start index of a contiguous empty block where we fit
+            // Find the start index of a contiguous empty block where we fit
+            // This is wildly inefficient and runs the whole check for every empty block
             .position(|(i, block)| {
                 match block {
                     Some(_) => return false,
@@ -38,21 +38,19 @@ fn part_2(fs_map: &Vec<Option<i64>>, largest_id: i64) -> Vec<Option<i64>> {
                 };
                 true
             }) {
-                Some(index) => {
+                Some(empty_index) => {
                     let file_index = match filesystem
                         .iter()
-                        .position(|block| {
-                            *block == Some(id)
-                        }) {
+                        .position(|block| *block == Some(id)) {
                             Some(v) => v,
                             None => continue,
                         };
                     // only move files left
-                    if index > file_index { continue };
+                    if empty_index > file_index { continue };
                     for i in file_index..(file_index + size) {
                         filesystem[i] = None;
                     }
-                    for i in index..(index + size) {
+                    for i in empty_index..(empty_index + size) {
                         filesystem[i] = Some(id);
                     }
                 },
@@ -74,8 +72,8 @@ fn part_1(fs_map: &Vec<Option<i64>>) -> Vec<Option<i64>> {
         };
         // move the last block to the empty block
         fs_map[index] = fs_map.pop().unwrap();
-   }
-   fs_map
+    }
+    fs_map
 }
 
 fn generate_filesystem(input: String) -> (Vec<Option<i64>>, i64) {
@@ -88,7 +86,7 @@ fn generate_filesystem(input: String) -> (Vec<Option<i64>>, i64) {
                 id += 1;
             },
             1 => fs_map.append(&mut vec![None; c.to_digit(10).unwrap().try_into().unwrap()]),
-            _ => unreachable!()
+            _ => (),
         }
     }
     (fs_map, id - 1)
