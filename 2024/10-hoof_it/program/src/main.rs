@@ -3,27 +3,22 @@ use std::{collections::HashMap, env, fs};
 fn main() {
     let map = parse_input();
 
-    let mut score = 0;
+    let mut score_1 = 0;
+    let mut score_2 = 0;
     for point in map.iter() {
         if *point.1 == 0 {
-            let get_score = get_score_1(&point.0, &map);
-            score += get_score;
+            let get_score_1 = get_score_1(&point.0, &map);
+            score_1 += get_score_1;
+            let get_score_2 = get_score_2(&point.0, &map);
+            score_2 += get_score_2;
         }
     }
 
     println!("Part 1:");
-    println!("{score}");
-
-    let mut score = 0;
-    for point in map.iter() {
-        if *point.1 == 0 {
-            let get_score = get_score_2(&point.0, &map);
-            score += get_score;
-        }
-    }
+    println!("{score_1}");
 
     println!("Part 2:");
-    println!("{score}");
+    println!("{score_2}");
 }
 
 fn get_score_1(coord: &Coord, map: &HashMap<(i32, i32), i32>) -> i32 {
@@ -35,16 +30,20 @@ fn get_score_1_helper(coord: &Coord, map: &HashMap<Coord, i32>, seen: &mut Vec<C
 
     let neighbors = get_neighbors(coord);
     for new_coord in neighbors.iter() {
-        if map.get(new_coord).is_some_and(|x| *x == map.get(coord).unwrap() + 1) {
-            if *map.get(new_coord).unwrap() == 9 {
-                if seen.contains(new_coord) { continue };
-                seen.push(*new_coord);
-                score += 1;
-            } else {
-                score += get_score_1_helper(new_coord, map, seen);
+        match map.get(new_coord).is_some_and(|x| *x == map.get(coord).unwrap() + 1) {
+            true => {
+                match *map.get(new_coord).unwrap() == 9 {
+                    true => {
+                        if seen.contains(new_coord) { continue };
+                        seen.push(*new_coord);
+                        score += 1;
+                    }
+                    false => {
+                        score += get_score_1_helper(new_coord, map, seen);
+                    }
+                }
             }
-        } else {
-            continue;
+            false => continue,
         }
     }
 
@@ -67,9 +66,7 @@ fn get_score_2(coord: &Coord, map: &HashMap<Coord, i32>) -> i32 {
                     },
                 }
             }
-            false => {
-                continue;
-            },
+            false => continue,
         }
     }
 
