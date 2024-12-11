@@ -14,11 +14,10 @@ fn main() {
     };
 
     let mut handles = Vec::with_capacity(matrix.len());
-    let counter: Arc<Mutex<i64>> = Arc::new(Mutex::new(0));
+    let total: Arc<Mutex<i64>> = Arc::new(Mutex::new(0));
 
-    for i in 0..matrix.len() {
-        let line = matrix[i].clone();
-        let counter = Arc::clone(&counter);
+    for line in matrix {
+        let counter = Arc::clone(&total);
         let handle = thread::spawn(move || {
             if check_possible(&line) {
                 let mut total = counter.lock().unwrap();
@@ -31,7 +30,7 @@ fn main() {
     for handle in handles {
         handle.join().unwrap();
     }
-    println!("{}", *counter.lock().unwrap());
+    println!("{}", *total.lock().unwrap());
 }
 
 fn check_possible(line: &[i64]) -> bool {
