@@ -1,69 +1,87 @@
-use std::{env, fs};
+use std::{collections::HashMap, env, fs, time::Instant};
 
 fn main() {
     let rocks = parse_input();
 
-    part_1(&rocks);
+    let now = Instant::now();
+
+    part_1(rocks.clone());
+    part_2(rocks);
+
+    let elapsed = now.elapsed();
+    println!("{:.2?}", elapsed);
 }
 
-fn part_1(rocks: &Rocks) {
+fn part_2(rocks: Rocks) {
+    let mut rocks = rocks.clone();
+
+    for _ in 0..75 {
+        rocks.blink();
+    }
+
+    println!("{}", rocks.map.values().sum::<u64>());
+}
+
+fn part_1(rocks: Rocks) {
     let mut rocks = rocks.clone();
 
     for _ in 0..25 {
         rocks.blink();
     }
 
-    println!("{}", rocks.vec.len());
+    println!("{}", rocks.map.values().sum::<u64>());
 }
 
 fn parse_input() -> Rocks {
     let args = env::args();
     let out_string = fs::read_to_string(args.last().unwrap()).unwrap();
-    let vec = out_string.split_whitespace()
+    let vec: Vec<u64> = out_string.split_whitespace()
         .map(|x| x.parse().unwrap())
         .collect();
 
-    Rocks::new(vec)
+    let mut map = HashMap::new();
+    for int in vec {
+        match map.get(&int) {
+            Some(_) => {
+                *map.entry(int).or_default() += 1;
+            },
+            None => {
+                map.insert(int, 1);
+            },
+        }
+    }
+
+    Rocks::new(map)
 }
 
 #[derive(Clone)]
 struct Rocks {
-    vec: Vec<u64>,
+    map: HashMap<u64, u64>,
 }
 
 impl Rocks {
     fn blink(&mut self) {
-        let mut new_vec: Vec<u64> = Vec::new();
+        let mut stones: HashMap<u64, u64> = HashMap::with_capacity(self.map.len());
 
-        for stone in self.vec.iter() {
-            if *stone == 0 {
-                new_vec.push(1);
-                continue;
-            }
-            let count_digits = count_digits(*stone);
-            match count_digits % 2 {
-                0 => {
-                    let mut left: u64 = *stone;
-                    for _ in 0..(count_digits / 2) {
-                        left /= 10;
-                    }
-                    new_vec.push(left);
-                    let base: u64 = 10;
-                    let factor = base.pow((count_digits / 2).try_into().unwrap());
-                    new_vec.push(*stone - left * factor);
-                },
-                1 => {
-                    new_vec.push(*stone * 2024);
-                },
-                _ => (),
+        for (stone, count) in &self.map {
+            match stone {
+                0 => *stones.entry(1).or_default() += count,
+                stone if stone.ilog10() % 2 == 1 => {
+                    let halver: u64 = 10i64.pow((stone.ilog10() + 1) / 2).try_into().unwrap();
+                    *stones.entry(stone % halver).or_default() += count;
+                    *stones.entry(stone / halver).or_default() += count;
+                }
+                _ => *stones.entry(stone * 2024).or_default() += count,
             }
         }
 
-        self.vec = new_vec;
+        self.map = stones;
     }
 
-    fn new(vec: Vec<u64>) -> Self {
-        Self { vec }
+    fn new(map: HashMap<u64, u64>) -> Self {
+        Self {
+            map,
+        }
     }
 }
 
