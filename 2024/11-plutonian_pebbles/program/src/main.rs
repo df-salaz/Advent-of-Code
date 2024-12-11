@@ -85,17 +85,3 @@ impl Rocks {
     }
 }
 
-fn print_vector(new_vec: &Vec<u64>) {
-    for stone in new_vec.iter() {
-        print!("{} ", stone);
-    }
-    println!();
-}
-
-fn count_digits(int: u64) -> u64 {
-    if int == 0 { return 1 };
-    let float: f64 = int as f64;
-
-    float.log10().floor() as u64 + 1
-}
-
