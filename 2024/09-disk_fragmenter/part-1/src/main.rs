@@ -71,6 +71,7 @@ fn part_1(fs_map: &Vec<Option<i64>>) -> Vec<Option<i64>> {
             None => break,
         };
         // move the last block to the empty block
+        if index == fs_map.len() - 1 { continue };
         fs_map[index] = fs_map.pop().unwrap();
     }
     fs_map
