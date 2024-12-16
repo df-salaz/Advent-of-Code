@@ -10,18 +10,29 @@ fn main() {
     println!("Part 2: {total}");
 }
 
-fn part_2(total_ids: i32, id_map: &HashMap<(i32, i32), i32>) -> i32 {
-    todo!()
-}
-
 fn part_1(total_ids: i32, id_map: &HashMap<(i32, i32), i32>) -> i32 {
     let mut total = 0;
     for id in 0..total_ids {
         total += {
-            let field: &HashMap<Coord, i32> = &id_map;
+            let field: &HashMap<Coord, i32> = id_map;
             let area = get_area(id, field);
             let perimeter = get_perimeter(id, field);
             let result = area * perimeter;
+
+            result
+        };
+    }
+    total
+}
+
+fn part_2(total_ids: i32, id_map: &HashMap<(i32, i32), i32>) -> i32 {
+    let mut total = 0;
+    for id in 0..total_ids {
+        total += {
+            let field: &HashMap<Coord, i32> = id_map;
+            let area = get_area(id, field);
+            let sides = get_sides(id, field);
+            let result = area * sides;
 
             result
         };
@@ -104,6 +115,48 @@ fn get_area(id: i32, field: &HashMap<(i32, i32), i32>) -> i32 {
         .unwrap();
 
     count
+}
+
+fn get_sides(id: i32, field: &HashMap<(i32, i32), i32>) -> i32 {
+    // Since every corner is associated with two sides, one of which is shared with another corner,
+    // "all we need to do" is count corners
+    //
+    // x marks the spot; We are checking x's corner c
+    // these check will be done four times, once for each rotation around c
+    //
+    // c a
+    // b x
+    //
+    // if a and b are both not x, then this corner is a convex corner.
+    // if a and b are both x, but c is not, this corner is a concave corner.
+    // do this for every corner of every index
+    let mut total = 0;
+    for (c, _) in field.iter().filter(|(_, i)| **i == id) {
+        let rotations: [(Coord, Coord, Coord); 4] = [
+            ((c.0, c.1 + 1), (c.0 - 1, c.1), (c.0 - 1, c.1 + 1)),
+            ((c.0, c.1 + 1), (c.0 + 1, c.1), (c.0 + 1, c.1 + 1)),
+            ((c.0, c.1 - 1), (c.0 - 1, c.1), (c.0 - 1, c.1 - 1)),
+            ((c.0, c.1 - 1), (c.0 + 1, c.1), (c.0 + 1, c.1 - 1)),
+        ];
+
+        for (a, b, c) in rotations.iter() {
+            let (neighbor_a, neighbor_b, corner_c) = (a, b, c);
+
+            let a = field.get(neighbor_a);
+            let b = field.get(neighbor_b);
+            let c = field.get(corner_c);
+
+            if a != Some(&id) && b != Some(&id) {
+                total += 1;
+                continue;
+            }
+            if a == Some(&id) && b == Some(&id) && c != Some(&id) {
+                total += 1;
+                continue;
+            }
+        }
+    }
+    total
 }
 
 type Coord = (i32, i32);
