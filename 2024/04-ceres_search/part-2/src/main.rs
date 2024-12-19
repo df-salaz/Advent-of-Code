@@ -34,15 +34,15 @@ fn find(lines: &Vec<&str>) -> usize {
                 continue;
             }
 
-            if
-                check_northeast(lines, y, x) && check_southeast(lines, y, x) ||
-                check_northwest(lines, y, x) && check_southwest(lines, y, x) ||
-                check_southwest(lines, y, x) && check_southeast(lines, y, x) ||
-                check_northwest(lines, y, x) && check_northeast(lines, y, x) {
-                    found += 1;
+            if check_northeast(lines, y, x) && check_southeast(lines, y, x)
+                || check_northwest(lines, y, x) && check_southwest(lines, y, x)
+                || check_southwest(lines, y, x) && check_southeast(lines, y, x)
+                || check_northwest(lines, y, x) && check_northeast(lines, y, x)
+            {
+                found += 1;
             }
-        };
-    };
+        }
+    }
 
     found
 }
@@ -50,9 +50,9 @@ fn find(lines: &Vec<&str>) -> usize {
 fn check_southwest(lines: &[&str], y: usize, x: usize) -> bool {
     let down_left = format!(
         "{}{}{}",
-        lines[y-1].chars().nth(x+1).unwrap(),
+        lines[y - 1].chars().nth(x + 1).unwrap(),
         lines[y].chars().nth(x).unwrap(),
-        lines[y+1].chars().nth(x-1).unwrap(),
+        lines[y + 1].chars().nth(x - 1).unwrap(),
     );
     if &down_left == "MAS" {
         return true;
@@ -63,9 +63,9 @@ fn check_southwest(lines: &[&str], y: usize, x: usize) -> bool {
 fn check_southeast(lines: &[&str], y: usize, x: usize) -> bool {
     let down_right = format!(
         "{}{}{}",
-        lines[y-1].chars().nth(x-1).unwrap(),
+        lines[y - 1].chars().nth(x - 1).unwrap(),
         lines[y].chars().nth(x).unwrap(),
-        lines[y+1].chars().nth(x+1).unwrap(),
+        lines[y + 1].chars().nth(x + 1).unwrap(),
     );
     if &down_right == "MAS" {
         return true;
@@ -73,15 +73,15 @@ fn check_southeast(lines: &[&str], y: usize, x: usize) -> bool {
     false
 }
 
-fn check_northeast(lines: &Vec<&str>, y: usize, x: usize) -> bool {
+fn check_northeast(lines: &[&str], y: usize, x: usize) -> bool {
     let up_right = format!(
         "{}{}{}",
-        lines[y+1].chars().nth(x-1).unwrap(),
+        lines[y + 1].chars().nth(x - 1).unwrap(),
         lines[y].chars().nth(x).unwrap(),
-        lines[y-1].chars().nth(x+1).unwrap(),
+        lines[y - 1].chars().nth(x + 1).unwrap(),
     );
     if &up_right == "MAS" {
-        return true
+        return true;
     };
     false
 }
@@ -89,13 +89,12 @@ fn check_northeast(lines: &Vec<&str>, y: usize, x: usize) -> bool {
 fn check_northwest(lines: &[&str], y: usize, x: usize) -> bool {
     let up_left = format!(
         "{}{}{}",
-        lines[y+1].chars().nth(x+1).unwrap(),
+        lines[y + 1].chars().nth(x + 1).unwrap(),
         lines[y].chars().nth(x).unwrap(),
-        lines[y-1].chars().nth(x-1).unwrap(),
+        lines[y - 1].chars().nth(x - 1).unwrap(),
     );
     if &up_left == "MAS" {
-        return true
+        return true;
     };
     false
 }
-

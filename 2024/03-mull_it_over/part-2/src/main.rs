@@ -21,7 +21,7 @@ fn main() {
             continue;
         };
 
-        if input[i..i+4] == *"mul(" {
+        if input[i..i + 4] == *"mul(" {
             i += 4;
 
             if !enabled {
@@ -30,10 +30,10 @@ fn main() {
 
             let numstart = i;
             c = char_vec[i];
-            while c.is_digit(10) {
+            while c.is_ascii_digit() {
                 i += 1;
                 c = char_vec[i];
-            };
+            }
             if i - numstart > 3 {
                 continue;
             };
@@ -47,10 +47,10 @@ fn main() {
 
             let numstart = i;
             c = char_vec[i];
-            while c.is_digit(10) {
+            while c.is_ascii_digit() {
                 i += 1;
                 c = char_vec[i];
-            };
+            }
             if i - numstart > 3 {
                 continue;
             };
@@ -61,17 +61,17 @@ fn main() {
             let num_b: usize = input[numstart..i].parse().unwrap();
 
             total += num_a * num_b;
-        } else if input[i..i+4] == *"do()" {
+        } else if input[i..i + 4] == *"do()" {
             i += 4;
             enabled = true;
             continue;
-        } else if input[i..i+7] == *"don't()" {
+        } else if input[i..i + 7] == *"don't()" {
             i += 7;
             enabled = false;
             continue;
         } else {
             i += 1;
         };
-    };
+    }
     println!("{total}");
 }

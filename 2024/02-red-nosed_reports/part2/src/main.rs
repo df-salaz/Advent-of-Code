@@ -13,57 +13,64 @@ fn main() {
     let mut safe_reports: u32 = 0;
 
     for report in reports.iter() {
-        let str_levels: Vec<&str> = report.trim().split_whitespace().collect();
+        let str_levels: Vec<&str> = report.split_whitespace().collect();
         let mut report: Vec<i32> = vec![];
         for level in str_levels.iter() {
             report.push(level.parse().expect("Failed to parse to int"))
         }
-        if check_report(&report) { safe_reports += 1; };
-    };
+        if check_report(&report) {
+            safe_reports += 1;
+        };
+    }
 
     println!("Safe Reports: {safe_reports}");
 }
 
-fn check_report(report: &Vec<i32>) -> bool {
+fn check_report(report: &[i32]) -> bool {
     for i in 0..report.len() {
-        let mut smaller = report.clone();
+        let mut smaller = report.to_owned();
         smaller.remove(i);
         let success = perform_checks(&smaller);
-        if success { return true };
-    };
+        if success {
+            return true;
+        };
+    }
     false
 }
 
-fn perform_checks(report: &Vec<i32>) -> bool {
-    if report.len() == 0 { return true };
+fn perform_checks(report: &[i32]) -> bool {
+    if report.is_empty() {
+        return true;
+    };
 
     let increasing: bool;
 
     if report.len() > 1 {
-        if report[0] < report[1] { increasing = true }
-        else if report[0] > report[1] { increasing = false }
-        else { return false };
+        match report[0] < report[1] {
+            true => increasing = true,
+            false if report[0] > report[1] => increasing = false,
+            false => return false,
+        };
     } else {
         return false;
     }
 
     for (i, level) in report.iter().enumerate() {
-        if i == 0 { continue; };
+        if i == 0 {
+            continue;
+        };
         // Distance
-        if (*level - report[i-1]).abs() > 3 {
-            return false
+        if (*level - report[i - 1]).abs() > 3 {
+            return false;
         };
         // inc/dec
         if increasing {
-            if *level <= report[i-1] {
-                return false
+            if *level <= report[i - 1] {
+                return false;
             };
-        } else {
-            if *level >= report[i-1] {
-                return false
-            }
-        };
-    };
+        } else if *level >= report[i - 1] {
+            return false;
+        }
+    }
     true
 }
-

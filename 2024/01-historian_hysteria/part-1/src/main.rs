@@ -36,4 +36,3 @@ fn main() {
     println!("SOLUTION:");
     println!("{sum}");
 }
-

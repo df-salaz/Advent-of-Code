@@ -135,7 +135,7 @@ fn flood_fill_flower_id(
     flower: &char,
     id: &mut i32,
 ) -> bool {
-    if let Some(_) = ids.get(coord) {
+    if ids.get(coord).is_some() {
         return false;
     }
     ids.insert(*coord, *id);

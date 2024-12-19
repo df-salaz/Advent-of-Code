@@ -26,7 +26,12 @@ fn main() {
 
     let mut scores: Vec<i32> = vec![];
     for val in left_vec.iter() {
-        let occurrences: i32 = right_vec.iter().filter(|&n| n == val).count().try_into().unwrap();
+        let occurrences: i32 = right_vec
+            .iter()
+            .filter(|&n| n == val)
+            .count()
+            .try_into()
+            .unwrap();
         scores.push(val * occurrences);
     }
 

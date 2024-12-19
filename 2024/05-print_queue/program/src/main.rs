@@ -20,7 +20,7 @@ fn main() {
     for printing_update in printing_updates.iter() {
         let success = check_update(printing_update, &ordering_rules);
         if success {
-            let middle = printing_update[printing_update.len()/2];
+            let middle = printing_update[printing_update.len() / 2];
             total += middle;
         }
     }
@@ -33,43 +33,45 @@ fn main() {
         let success = check_update(printing_update, &ordering_rules);
         if !success {
             let corrected_update = fix_update(printing_update, &ordering_rules);
-            let middle = corrected_update[corrected_update.len()/2];
+            let middle = corrected_update[corrected_update.len() / 2];
             total += middle;
         };
-    };
+    }
 
     println!("Part 2:");
     println!("{total}");
 }
 
-fn fix_update(printing_update: &Vec<i32>, ordering_rules: &Vec<Vec<i32>>) -> Vec<i32> {
-    let mut new_update = printing_update.clone();
+fn fix_update(printing_update: &[i32], ordering_rules: &[Vec<i32>]) -> Vec<i32> {
+    let mut new_update = printing_update.to_owned();
     while !check_update(&new_update, ordering_rules) {
         let mut i = 0;
         while i < new_update.len() {
             for rule in ordering_rules.iter() {
-                if rule[0] != new_update[i] { continue };
-                if check_rule(&new_update, rule) { continue };
-                let after;
-                match new_update.iter().position(|&page| page == rule[1]) {
-                    None => { continue; },
-                    Some(position) => { after = position; }
-                }
-                new_update.swap(
-                    i,
-                    after
-                );
-            };
+                if rule[0] != new_update[i] {
+                    continue;
+                };
+                if check_rule(&new_update, rule) {
+                    continue;
+                };
+                let after = match new_update.iter().position(|&page| page == rule[1]) {
+                    None => {
+                        continue;
+                    }
+                    Some(position) => position,
+                };
+                new_update.swap(i, after);
+            }
             i += 1;
-        };
+        }
     }
-    new_update
+    new_update.to_vec()
 }
 
-fn check_update(printing_update: &Vec<i32>, ordering_rules: &Vec<Vec<i32>>) -> bool {
+fn check_update(printing_update: &[i32], ordering_rules: &[Vec<i32>]) -> bool {
     let mut failed = false;
     for rule in ordering_rules.iter() {
-        let good = check_rule(printing_update, &rule);
+        let good = check_rule(printing_update, rule);
 
         if !good {
             failed = true;
@@ -78,43 +80,36 @@ fn check_update(printing_update: &Vec<i32>, ordering_rules: &Vec<Vec<i32>>) -> b
     !failed
 }
 
-fn check_rule(printing_update: &Vec<i32>, rule: &Vec<i32>) -> bool {
+fn check_rule(printing_update: &[i32], rule: &[i32]) -> bool {
     let before = rule[0];
     let after = rule[1];
 
     let before_index = printing_update.iter().position(|&page| page == before);
-    match before_index {
-        None => { return true; },
-        Some(..) => {}
-    };
+    if before_index.is_none() {
+        return true;
+    }
     let after_index = printing_update.iter().position(|&page| page == after);
-    match after_index {
-        None => { return true; },
-        Some(..) => {}
+    if after_index.is_none() {
+        return true;
     };
     before_index <= after_index
 }
 
 fn get_vec_vec(section: &str, pattern: char) -> Vec<Vec<i32>> {
-    let vec: Vec<Vec<i32>> = section.split('\n')
+    let vec: Vec<Vec<i32>> = section
+        .split('\n')
         .map(|string| string.trim())
         .map(|string: &str| {
-            string.split(pattern)
-                    .map(|number| number
-                        .parse()
-                        .unwrap()
-                    )
-                    .collect()
-        }
-        )
+            string
+                .split(pattern)
+                .map(|number| number.parse().unwrap())
+                .collect()
+        })
         .collect();
     vec
 }
 
-fn get_sections(input: &String) -> Vec<&str> {
-    let sections: Vec<&str> = input.split("\n\n")
-        .map(|string| string.trim())
-        .collect();
+fn get_sections(input: &str) -> Vec<&str> {
+    let sections: Vec<&str> = input.split("\n\n").map(|string| string.trim()).collect();
     sections
 }
-

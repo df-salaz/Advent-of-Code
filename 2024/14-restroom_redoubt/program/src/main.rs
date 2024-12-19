@@ -15,8 +15,8 @@ fn main() {
     println!("Part 2: {pt_2}");
 }
 
-fn part_1(bots: &Vec<Robot>) -> i64 {
-    let mut bots = bots.clone();
+fn part_1(bots: &[Robot]) -> i64 {
+    let mut bots = bots.to_owned();
 
     for bot in bots.iter_mut() {
         bot.exist();
@@ -28,8 +28,8 @@ fn part_1(bots: &Vec<Robot>) -> i64 {
     get_safety(bots[0].map.take())
 }
 
-fn part_2(bots: &Vec<Robot>) -> i64 {
-    let mut bots = bots.clone();
+fn part_2(bots: &[Robot]) -> i64 {
+    let mut bots = bots.to_owned();
 
     for bot in bots.iter() {
         bot.exist();
@@ -65,10 +65,11 @@ fn easter_egg(bots: &Vec<Robot>) -> bool {
     for bot in bots {
         let mut count = 0;
         for delta in touching {
-            if let Some(_) = bot
+            if bot
                 .map
                 .borrow()
                 .get(&(bot.pos.0 + delta.0, bot.pos.1 + delta.1))
+                .is_some()
             {
                 count += 1
             }

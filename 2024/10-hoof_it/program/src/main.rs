@@ -7,9 +7,9 @@ fn main() {
     let mut score_2 = 0;
     for point in map.iter() {
         if *point.1 == 0 {
-            let get_score_1 = get_score_1(&point.0, &map);
+            let get_score_1 = get_score_1(point.0, &map);
             score_1 += get_score_1;
-            let get_score_2 = get_score_2(&point.0, &map);
+            let get_score_2 = get_score_2(point.0, &map);
             score_2 += get_score_2;
         }
     }
@@ -30,19 +30,22 @@ fn get_score_1_helper(coord: &Coord, map: &HashMap<Coord, i32>, seen: &mut Vec<C
 
     let neighbors = get_neighbors(coord);
     for new_coord in neighbors.iter() {
-        match map.get(new_coord).is_some_and(|x| *x == map.get(coord).unwrap() + 1) {
-            true => {
-                match *map.get(new_coord).unwrap() == 9 {
-                    true => {
-                        if seen.contains(new_coord) { continue };
-                        seen.push(*new_coord);
-                        score += 1;
-                    }
-                    false => {
-                        score += get_score_1_helper(new_coord, map, seen);
-                    }
+        match map
+            .get(new_coord)
+            .is_some_and(|x| *x == map.get(coord).unwrap() + 1)
+        {
+            true => match *map.get(new_coord).unwrap() == 9 {
+                true => {
+                    if seen.contains(new_coord) {
+                        continue;
+                    };
+                    seen.push(*new_coord);
+                    score += 1;
                 }
-            }
+                false => {
+                    score += get_score_1_helper(new_coord, map, seen);
+                }
+            },
             false => continue,
         }
     }
@@ -55,17 +58,18 @@ fn get_score_2(coord: &Coord, map: &HashMap<Coord, i32>) -> i32 {
 
     let neighbors = get_neighbors(coord);
     for new_coord in neighbors.iter() {
-        match map.get(new_coord).is_some_and(|x| *x == map.get(coord).unwrap() + 1) {
-            true => {
-                match *map.get(new_coord).unwrap() == 9 {
-                    true => {
-                        score += 1;
-                    },
-                    false => {
-                        score += get_score_2(new_coord, map);
-                    },
+        match map
+            .get(new_coord)
+            .is_some_and(|x| *x == map.get(coord).unwrap() + 1)
+        {
+            true => match *map.get(new_coord).unwrap() == 9 {
+                true => {
+                    score += 1;
                 }
-            }
+                false => {
+                    score += get_score_2(new_coord, map);
+                }
+            },
             false => continue,
         }
     }
@@ -86,17 +90,19 @@ fn get_neighbors(coord: &(i32, i32)) -> [(i32, i32); 4] {
 fn parse_input() -> HashMap<Coord, i32> {
     let mut map = HashMap::new();
 
-    let file_string = fs::read_to_string(
-        env::args().last().unwrap()
-    ).expect("Not a file!");
+    let file_string = fs::read_to_string(env::args().last().unwrap()).expect("Not a file!");
 
     for (y, line) in file_string.lines().enumerate() {
         for (x, c) in line.chars().enumerate() {
             let x = x.try_into().expect("Line of input too long!");
             let y = y.try_into().expect("Height of input too long!");
-            let c = c.to_digit(10).expect("Non-digit character in input!").try_into().unwrap();
+            let c = c
+                .to_digit(10)
+                .expect("Non-digit character in input!")
+                .try_into()
+                .unwrap();
 
-            map.insert((x,y), c);
+            map.insert((x, y), c);
         }
     }
 
@@ -104,4 +110,3 @@ fn parse_input() -> HashMap<Coord, i32> {
 }
 
 type Coord = (i32, i32);
-

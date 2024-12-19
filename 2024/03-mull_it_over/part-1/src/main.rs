@@ -19,7 +19,7 @@ fn main() {
             i += 1;
             continue;
         }
-        if input[i..i+4] != *"mul(" {
+        if input[i..i + 4] != *"mul(" {
             i += 1;
             continue;
         }
@@ -27,10 +27,10 @@ fn main() {
 
         let numstart = i;
         c = char_vec[i];
-        while c.is_digit(10) {
+        while c.is_ascii_digit() {
             i += 1;
             c = char_vec[i];
-        };
+        }
         if i - numstart > 3 {
             continue;
         };
@@ -44,10 +44,10 @@ fn main() {
 
         let numstart = i;
         c = char_vec[i];
-        while c.is_digit(10) {
+        while c.is_ascii_digit() {
             i += 1;
             c = char_vec[i];
-        };
+        }
         if i - numstart > 3 {
             continue;
         };
@@ -60,6 +60,6 @@ fn main() {
         total += num_a * num_b;
 
         i += 1;
-    };
+    }
     println!("{total}");
 }

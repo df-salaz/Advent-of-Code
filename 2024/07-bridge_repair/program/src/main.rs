@@ -36,20 +36,11 @@ fn main() {
 fn check_possible(line: &[i64]) -> bool {
     let values = &line[1..line.len()];
     let mut sequence: Vec<Operator> = Vec::new();
-    return check_helper(
-        values,
-        &mut sequence,
-        values.len(),
-        line[0],
-    );
+
+    check_helper(values, &mut sequence, values.len(), line[0])
 }
 
-fn check_helper(
-    values: &[i64],
-    sequence: &mut Vec<Operator>,
-    count: usize,
-    goal: i64,
-) -> bool {
+fn check_helper(values: &[i64], sequence: &mut Vec<Operator>, count: usize, goal: i64) -> bool {
     if count == 1 {
         return apply_operators(sequence, values) == goal;
     }
@@ -57,31 +48,25 @@ fn check_helper(
     for operator in Operator::iter() {
         let mut new_sequence = sequence.clone();
         new_sequence.push(operator);
-        let solution_found = check_helper(
-            values,
-            &mut new_sequence,
-            count - 1,
-            goal,
-        );
+        let solution_found = check_helper(values, &mut new_sequence, count - 1, goal);
 
-        if solution_found { return true };
-    };
+        if solution_found {
+            return true;
+        };
+    }
 
     false
 }
 
 fn apply_operators(sequence: &mut Vec<Operator>, values: &[i64]) -> i64 {
-    if sequence.len() == 0 {
+    if sequence.is_empty() {
         return values[0];
     }
 
     let operator = sequence.pop().unwrap();
 
     operator.apply(
-        apply_operators(
-            sequence,
-            &values[0..values.len() - 1],
-        ),
+        apply_operators(sequence, &values[0..values.len() - 1]),
         values[values.len() - 1],
     )
 }
@@ -97,14 +82,13 @@ fn process_input() -> Option<Vec<Vec<i64>>> {
         .unwrap()
         .lines()
         .map(|string| {
-            string.split_whitespace()
-                .map(|str| {
-                    match str.chars().last().unwrap() {
-                        '0'..='9' => str.parse().unwrap(),
-                        _ => str[0..str.len() - 1].parse().unwrap(),
-                    }
+            string
+                .split_whitespace()
+                .map(|str| match str.chars().last().unwrap() {
+                    '0'..='9' => str.parse().unwrap(),
+                    _ => str[0..str.len() - 1].parse().unwrap(),
                 })
-            .collect()
+                .collect()
         })
         .collect();
     Some(input)
@@ -122,10 +106,7 @@ impl Operator {
         match self {
             Operator::Add => lh + rh,
             Operator::Multiply => lh * rh,
-            Operator::Concatinate => {
-                format!("{lh}{rh}").parse().unwrap()
-            },
+            Operator::Concatinate => format!("{lh}{rh}").parse().unwrap(),
         }
     }
 }
-

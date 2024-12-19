@@ -54,19 +54,19 @@ fn find(lines: &Vec<&str>) -> usize {
             if room_west && room_north {
                 check_northwest(lines, y, x, &mut found);
             };
-        };
-    };
+        }
+    }
 
     found
 }
 
-fn check_south(lines: &Vec<&str>, y: usize, x: usize, found: &mut usize) {
+fn check_south(lines: &[&str], y: usize, x: usize, found: &mut usize) {
     let down = format!(
         "{}{}{}{}",
         lines[y].chars().nth(x).unwrap(),
-        lines[y+1].chars().nth(x).unwrap(),
-        lines[y+2].chars().nth(x).unwrap(),
-        lines[y+3].chars().nth(x).unwrap(),
+        lines[y + 1].chars().nth(x).unwrap(),
+        lines[y + 2].chars().nth(x).unwrap(),
+        lines[y + 3].chars().nth(x).unwrap(),
     );
     if &down == "XMAS" {
         *found += 1;
@@ -78,9 +78,9 @@ fn check_southwest(lines: &[&str], y: usize, x: usize, found: &mut usize) {
     let down_left = format!(
         "{}{}{}{}",
         lines[y].chars().nth(x).unwrap(),
-        lines[y+1].chars().nth(x-1).unwrap(),
-        lines[y+2].chars().nth(x-2).unwrap(),
-        lines[y+3].chars().nth(x-3).unwrap(),
+        lines[y + 1].chars().nth(x - 1).unwrap(),
+        lines[y + 2].chars().nth(x - 2).unwrap(),
+        lines[y + 3].chars().nth(x - 3).unwrap(),
     );
     if &down_left == "XMAS" {
         *found += 1;
@@ -92,9 +92,9 @@ fn check_southeast(lines: &[&str], y: usize, x: usize, found: &mut usize) {
     let down_right = format!(
         "{}{}{}{}",
         lines[y].chars().nth(x).unwrap(),
-        lines[y+1].chars().nth(x+1).unwrap(),
-        lines[y+2].chars().nth(x+2).unwrap(),
-        lines[y+3].chars().nth(x+3).unwrap(),
+        lines[y + 1].chars().nth(x + 1).unwrap(),
+        lines[y + 2].chars().nth(x + 2).unwrap(),
+        lines[y + 3].chars().nth(x + 3).unwrap(),
     );
     if &down_right == "XMAS" {
         *found += 1;
@@ -102,13 +102,13 @@ fn check_southeast(lines: &[&str], y: usize, x: usize, found: &mut usize) {
     }
 }
 
-fn check_northeast(lines: &Vec<&str>, y: usize, x: usize, found: &mut usize) {
+fn check_northeast(lines: &[&str], y: usize, x: usize, found: &mut usize) {
     let up_right = format!(
         "{}{}{}{}",
         lines[y].chars().nth(x).unwrap(),
-        lines[y-1].chars().nth(x+1).unwrap(),
-        lines[y-2].chars().nth(x+2).unwrap(),
-        lines[y-3].chars().nth(x+3).unwrap(),
+        lines[y - 1].chars().nth(x + 1).unwrap(),
+        lines[y - 2].chars().nth(x + 2).unwrap(),
+        lines[y - 3].chars().nth(x + 3).unwrap(),
     );
     if &up_right == "XMAS" {
         *found += 1;
@@ -120,9 +120,9 @@ fn check_northwest(lines: &[&str], y: usize, x: usize, found: &mut usize) {
     let up_left = format!(
         "{}{}{}{}",
         lines[y].chars().nth(x).unwrap(),
-        lines[y-1].chars().nth(x-1).unwrap(),
-        lines[y-2].chars().nth(x-2).unwrap(),
-        lines[y-3].chars().nth(x-3).unwrap(),
+        lines[y - 1].chars().nth(x - 1).unwrap(),
+        lines[y - 2].chars().nth(x - 2).unwrap(),
+        lines[y - 3].chars().nth(x - 3).unwrap(),
     );
     if &up_left == "XMAS" {
         *found += 1;
@@ -130,13 +130,13 @@ fn check_northwest(lines: &[&str], y: usize, x: usize, found: &mut usize) {
     };
 }
 
-fn check_north(lines: &Vec<&str>, y: usize, x: usize, found: &mut usize) {
+fn check_north(lines: &[&str], y: usize, x: usize, found: &mut usize) {
     let up = format!(
         "{}{}{}{}",
         lines[y].chars().nth(x).unwrap(),
-        lines[y-1].chars().nth(x).unwrap(),
-        lines[y-2].chars().nth(x).unwrap(),
-        lines[y-3].chars().nth(x).unwrap(),
+        lines[y - 1].chars().nth(x).unwrap(),
+        lines[y - 2].chars().nth(x).unwrap(),
+        lines[y - 3].chars().nth(x).unwrap(),
     );
     if &up == "XMAS" {
         *found += 1;
@@ -145,17 +145,15 @@ fn check_north(lines: &Vec<&str>, y: usize, x: usize, found: &mut usize) {
 }
 
 fn check_east(line: &&str, x: usize, found: &mut usize) {
-    if &line[x..x+4] == "XMAS" {
+    if &line[x..x + 4] == "XMAS" {
         *found += 1;
         println!("east");
     }
 }
 
 fn check_west(line: &str, x: usize, found: &mut usize) {
-    if &line[x-3..x+1] == "SAMX" {
+    if &line[x - 3..x + 1] == "SAMX" {
         *found += 1;
         println!("west");
     }
 }
-
-

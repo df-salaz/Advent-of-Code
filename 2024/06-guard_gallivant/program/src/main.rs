@@ -2,7 +2,6 @@ use std::env;
 use std::fs;
 use std::io;
 use std::io::Write;
-use std::usize;
 
 fn main() {
     let input = match process_input() {
@@ -12,14 +11,13 @@ fn main() {
 
     let field = get_2d_char_arry(input);
 
-    let mut agent =
-        match find_agent(field.clone()) {
-            Some(value) => value,
-            None => {
-                println!("Could not find agent.");
-                return
-            },
-        };
+    let mut agent = match find_agent(field.clone()) {
+        Some(value) => value,
+        None => {
+            println!("Could not find agent.");
+            return;
+        }
+    };
 
     while agent.move_agent() && !agent.in_loop {}
     let first_pass = agent.field;
@@ -30,8 +28,8 @@ fn main() {
             if *c == 'X' {
                 count += 1;
             };
-        };
-    };
+        }
+    }
 
     println!("Part 1:");
     println!("{count}");
@@ -42,16 +40,19 @@ fn main() {
     for i in 0..field_2.len() {
         for j in 0..field_2[i].len() {
             let _ = io::stdout().flush();
-            if first_pass[i][j] != 'X' { continue; };
-            if field_2[i][j] != '.' { continue; };
+            if first_pass[i][j] != 'X' {
+                continue;
+            };
+            if field_2[i][j] != '.' {
+                continue;
+            };
 
             field_2[i][j] = '#';
 
-            let mut agent =
-                match find_agent(field_2.clone()) {
-                    Some(value) => value,
-                    None => { return },
-                };
+            let mut agent = match find_agent(field_2.clone()) {
+                Some(value) => value,
+                None => return,
+            };
 
             while agent.move_agent() && !agent.in_loop {}
             if agent.in_loop {
@@ -83,44 +84,20 @@ fn find_agent(field: Vec<Vec<char>>) -> Option<Agent> {
         match find {
             Some(x) => {
                 (agent_y, agent_x) = (Some(x as i32), Some(y as i32));
-                break
-            },
+                break;
+            }
             None => continue,
         }
     }
-    let agent =
-        match {
-            let agent;
-            match agent_x {
-                Some(_) => {
-                    agent = Agent::new(
-                        (agent_x.unwrap(), agent_y.unwrap()),
-                        Facing::North,
-                        field,
-                    )
-                },
-                None => {
-                    return None;
-                },
-            }
-            Some(agent)
-        } {
-            Some(agent) => agent,
-            None => {
-                return None;
-            },
-        };
-    Some(agent)
+
+    agent_x.map(|_| Agent::new((agent_x.unwrap(), agent_y.unwrap()), Facing::North, field))
 }
 
 fn get_2d_char_arry(input: String) -> Vec<Vec<char>> {
     let field: Vec<Vec<char>> = input
         .trim()
         .split('\n')
-        .map(|string| {
-            string.chars()
-                .collect()
-        })
+        .map(|string| string.chars().collect())
         .collect();
     field
 }
@@ -130,39 +107,37 @@ enum Facing {
     North,
     East,
     South,
-    West
+    West,
 }
 
 struct Agent {
     location: (i32, i32),
     facing: Facing,
     field: Vec<Vec<char>>,
-    memory: Vec<Vec<Option<((i32, i32), Facing)>>>,
+    memory: Memory,
     iterations: i32,
     in_loop: bool,
 }
+type Memory = Vec<Vec<Option<((i32, i32), Facing)>>>;
 
 impl Agent {
     fn new(location: (i32, i32), facing: Facing, field: Vec<Vec<char>>) -> Agent {
-        let mut memory: Vec<Vec<Option<((i32, i32), Facing)>>> = Vec::with_capacity(field.len());
+        let mut memory: Memory = Vec::with_capacity(field.len());
         for i in 0..field.len() {
-            memory.push(
-                Vec::with_capacity(field[0].len())
-            );
+            memory.push(Vec::with_capacity(field[0].len()));
             for _ in 0..field[0].len() {
                 memory[i].push(None);
             }
-        };
+        }
 
-        let new_agent = Agent {
+        Agent {
             location,
             facing,
             field,
             memory,
             iterations: 0,
             in_loop: false,
-        };
-        new_agent
+        }
     }
 
     fn move_agent(&mut self) -> bool {
@@ -171,27 +146,23 @@ impl Agent {
             self.in_loop = true;
         }
 
-        let direction;
-
-        match &self.facing {
-            Facing::North => direction = (-1, 0),
-            Facing::South => direction = (1, 0),
-            Facing::East => direction = (0, 1),
-            Facing::West => direction = (0, -1),
-        }
+        let direction = match &self.facing {
+            Facing::North => (-1, 0),
+            Facing::South => (1, 0),
+            Facing::East => (0, 1),
+            Facing::West => (0, -1),
+        };
 
         let loc = self.location;
         self.field[loc.0 as usize][loc.1 as usize] = 'X';
 
-        let new_loc = (
-            self.location.0 + direction.0,
-            self.location.1 + direction.1,
-        );
+        let new_loc = (self.location.0 + direction.0, self.location.1 + direction.1);
 
         let bounds_y = self.field.len() as i32;
         let bounds_x = self.field[0].len() as i32;
-        if new_loc.0 >= bounds_y || new_loc.0 < 0 || new_loc.1 >= bounds_x || new_loc.1 < 0
-        { return false };
+        if new_loc.0 >= bounds_y || new_loc.0 < 0 || new_loc.1 >= bounds_x || new_loc.1 < 0 {
+            return false;
+        };
 
         if self.field[new_loc.0 as usize][new_loc.1 as usize] == '#' {
             self.facing = match &self.facing {
@@ -209,14 +180,13 @@ impl Agent {
                 if state == (new_loc, self.facing) {
                     self.in_loop = true;
                 }
-            },
+            }
             None => {
                 self.memory[loc.0 as usize][loc.1 as usize] = Some((loc, self.facing));
-            },
+            }
         }
 
         self.location = new_loc;
         true
     }
 }
-

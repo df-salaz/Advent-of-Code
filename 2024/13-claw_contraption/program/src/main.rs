@@ -13,19 +13,19 @@ fn main() {
 fn part_1(machines: &[ClawMachine]) -> i64 {
     machines
         .iter()
-        .filter_map(|machine| press_buttons(machine))
+        .filter_map(press_buttons)
         .map(|(a, b)| 3 * a + b)
         .sum()
 }
 
-fn part_2(machines: &Vec<ClawMachine>) -> i64 {
+fn part_2(machines: &[ClawMachine]) -> i64 {
     machines
-        .clone()
+        .to_owned()
         .iter_mut()
         .filter_map(|machine| {
             machine.prize.x += 10000000000000;
             machine.prize.y += 10000000000000;
-            press_buttons(&machine)
+            press_buttons(machine)
         })
         .map(|(a, b)| 3 * a + b)
         .sum()
@@ -99,11 +99,11 @@ fn parse_position(line: &str) -> Position {
     let comma = line.chars().position(|c| c == ',').unwrap();
     let (lhs, rhs) = line.split_at(comma);
 
-    let first = lhs.chars().position(|c| c.is_digit(10)).unwrap();
+    let first = lhs.chars().position(|c| c.is_ascii_digit()).unwrap();
     let slice_x = &lhs[first..];
     let x: i64 = slice_x.parse().unwrap();
 
-    let first = rhs.chars().position(|c| c.is_digit(10)).unwrap();
+    let first = rhs.chars().position(|c| c.is_ascii_digit()).unwrap();
     let slice_y = &rhs[first..];
     let y: i64 = slice_y.parse().unwrap();
 
