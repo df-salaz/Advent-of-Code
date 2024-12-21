@@ -5,14 +5,14 @@ fn main() {
 
     let now = Instant::now();
 
-    part_1(rocks.clone());
-    part_2(rocks);
+    part_1(&rocks);
+    part_2(&rocks);
 
     let elapsed = now.elapsed();
-    println!("{:.2?}", elapsed);
+    println!("{elapsed:.2?}");
 }
 
-fn part_2(rocks: Rocks) {
+fn part_2(rocks: &Rocks) {
     let mut rocks = rocks.clone();
 
     for _ in 0..75 {
@@ -22,7 +22,7 @@ fn part_2(rocks: Rocks) {
     println!("{}", rocks.map.values().sum::<u64>());
 }
 
-fn part_1(rocks: Rocks) {
+fn part_1(rocks: &Rocks) {
     let mut rocks = rocks.clone();
 
     for _ in 0..25 {
@@ -35,7 +35,8 @@ fn part_1(rocks: Rocks) {
 fn parse_input() -> Rocks {
     let args = env::args();
     let out_string = fs::read_to_string(args.last().unwrap()).unwrap();
-    let vec: Vec<u64> = out_string.split_whitespace()
+    let vec: Vec<u64> = out_string
+        .split_whitespace()
         .map(|x| x.parse().unwrap())
         .collect();
 
@@ -44,10 +45,10 @@ fn parse_input() -> Rocks {
         match map.get(&int) {
             Some(_) => {
                 *map.entry(int).or_default() += 1;
-            },
+            }
             None => {
                 map.insert(int, 1);
-            },
+            }
         }
     }
 
@@ -79,9 +80,6 @@ impl Rocks {
     }
 
     fn new(map: HashMap<u64, u64>) -> Self {
-        Self {
-            map,
-        }
+        Self { map }
     }
 }
-

@@ -23,8 +23,8 @@ fn part_2(machines: &[ClawMachine]) -> i64 {
         .to_owned()
         .iter_mut()
         .filter_map(|machine| {
-            machine.prize.x += 10000000000000;
-            machine.prize.y += 10000000000000;
+            machine.prize.x += 10_000_000_000_000;
+            machine.prize.y += 10_000_000_000_000;
             press_buttons(machine)
         })
         .map(|(a, b)| 3 * a + b)
@@ -57,8 +57,7 @@ impl ClawMachine {
 
 fn parse_input() -> Vec<ClawMachine> {
     let input_string = fs::read_to_string(env::args().last().unwrap()).unwrap();
-    let machine_descriptions: Vec<&str> =
-        input_string.split("\n\n").map(|str| str.trim()).collect();
+    let machine_descriptions: Vec<&str> = input_string.split("\n\n").map(str::trim).collect();
 
     let mut claw_machines = Vec::with_capacity(machine_descriptions.len());
     for description in machine_descriptions {

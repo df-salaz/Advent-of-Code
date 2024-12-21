@@ -6,7 +6,7 @@ static HEIGHT: i64 = 103;
 fn main() {
     let size: usize = (WIDTH * HEIGHT).try_into().unwrap();
     let map: Bathroom = Rc::new(RefCell::new(HashMap::with_capacity(size)));
-    let robots = parse_input(map);
+    let robots = parse_input(&map);
 
     let pt_1 = part_1(&robots);
     println!("Part 1: {pt_1}");
@@ -18,7 +18,7 @@ fn main() {
 fn part_1(bots: &[Robot]) -> i64 {
     let mut bots = bots.to_owned();
 
-    for bot in bots.iter_mut() {
+    for bot in &mut bots {
         bot.exist();
         for _ in 0..100 {
             bot.move_bot();
@@ -31,13 +31,13 @@ fn part_1(bots: &[Robot]) -> i64 {
 fn part_2(bots: &[Robot]) -> i64 {
     let mut bots = bots.to_owned();
 
-    for bot in bots.iter() {
+    for bot in &bots {
         bot.exist();
     }
 
     let mut time = 0;
     loop {
-        for bot in bots.iter_mut() {
+        for bot in &mut bots {
             bot.move_bot();
         }
         time += 1;
@@ -71,7 +71,7 @@ fn easter_egg(bots: &Vec<Robot>) -> bool {
                 .get(&(bot.pos.0 + delta.0, bot.pos.1 + delta.1))
                 .is_some()
             {
-                count += 1
+                count += 1;
             }
         }
         if count == 8 {
@@ -140,7 +140,7 @@ impl Robot {
 
 type Bathroom = Rc<RefCell<HashMap<Position, i64>>>;
 
-fn parse_input(map: Bathroom) -> Vec<Robot> {
+fn parse_input(map: &Bathroom) -> Vec<Robot> {
     fs::read_to_string(env::args().last().unwrap())
         .unwrap()
         .lines()
@@ -164,7 +164,7 @@ fn parse_input(map: Bathroom) -> Vec<Robot> {
             Robot {
                 pos: p,
                 vel: v,
-                map: Rc::clone(&map),
+                map: Rc::clone(map),
             }
         })
         .collect()

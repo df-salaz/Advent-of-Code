@@ -14,7 +14,12 @@ fn part_1(total_ids: i32, field: &HashMap<(i32, i32), i32>) -> i32 {
     let mut price = 0;
     for id in 0..total_ids {
         price += {
-            let area = field.iter().filter(|(_, i)| **i == id).count() as i32;
+            let area: i32 = field
+                .iter()
+                .filter(|(_, i)| **i == id)
+                .count()
+                .try_into()
+                .unwrap();
             let perimeter = get_perimeter(id, field);
 
             area * perimeter
@@ -27,7 +32,12 @@ fn part_2(total_ids: i32, field: &HashMap<(i32, i32), i32>) -> i32 {
     let mut price = 0;
     for id in 0..total_ids {
         price += {
-            let area = field.iter().filter(|(_, i)| **i == id).count() as i32;
+            let area: i32 = field
+                .iter()
+                .filter(|(_, i)| **i == id)
+                .count()
+                .try_into()
+                .unwrap();
             let sides = get_sides(id, field);
 
             area * sides
@@ -48,7 +58,7 @@ fn get_perimeter(id: i32, field: &HashMap<(i32, i32), i32>) -> i32 {
             (coord.0, coord.1 + 1),
         ];
 
-        for coord in orthogonal.iter() {
+        for coord in &orthogonal {
             let neighbor = field.get(coord);
             match neighbor {
                 Some(i) if *i == id => {}
@@ -78,7 +88,7 @@ fn get_sides(id: i32, field: &HashMap<(i32, i32), i32>) -> i32 {
             ((c.0, c.1 - 1), (c.0 + 1, c.1), (c.0 + 1, c.1 - 1)),
         ];
 
-        for (a, b, c) in rotations.iter() {
+        for (a, b, c) in &rotations {
             let (neighbor_a, neighbor_b, corner_c) = (a, b, c);
             let a = field.get(neighbor_a);
             let b = field.get(neighbor_b);
@@ -118,8 +128,8 @@ fn parse_input() -> (HashMap<(i32, i32), i32>, i32) {
     let mut ids: HashMap<Coord, i32> = HashMap::with_capacity(input.len());
     let mut id = 0;
 
-    for (coord, flower) in input.iter() {
-        let flood_tag_flowers = flood_fill_flower_id(&mut ids, &input, coord, flower, &mut id);
+    for (coord, flower) in &input {
+        let flood_tag_flowers = flood_fill_flower_id(&mut ids, &input, *coord, *flower, &mut id);
         if flood_tag_flowers {
             id += 1;
         }
@@ -131,14 +141,14 @@ fn parse_input() -> (HashMap<(i32, i32), i32>, i32) {
 fn flood_fill_flower_id(
     ids: &mut HashMap<(i32, i32), i32>,
     field: &HashMap<Coord, char>,
-    coord: &(i32, i32),
-    flower: &char,
+    coord: (i32, i32),
+    flower: char,
     id: &mut i32,
 ) -> bool {
-    if ids.get(coord).is_some() {
+    if ids.get(&coord).is_some() {
         return false;
     }
-    ids.insert(*coord, *id);
+    ids.insert(coord, *id);
 
     let orthogonal: [Coord; 4] = [
         (coord.0 + -1, coord.1),
@@ -149,8 +159,8 @@ fn flood_fill_flower_id(
 
     for coord in orthogonal {
         if let Some(neighbor) = field.get(&coord) {
-            if neighbor == flower {
-                flood_fill_flower_id(ids, field, &coord, flower, id);
+            if *neighbor == flower {
+                flood_fill_flower_id(ids, field, coord, flower, id);
             }
         }
     }
